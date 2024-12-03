@@ -5,15 +5,6 @@ from urllib3 import disable_warnings
 
 disable_warnings(category=InsecureRequestWarning)
 
-"""
-сделать класс статичным
-поработать с многопотоком для парсера
-убрать лишние параметры в парсере
-повысить лимит get
-структура
-sourse файл 
-в различияъ linux и windows добвить определение платформы
-"""
 
 class APIClient:
     def __init__(self, api_base_url, username, password):
@@ -53,6 +44,9 @@ class APIClient:
             exit()
 
     def get_all_variables(self):
+        """
+        Получает все переменные с сервера.
+        """
         all_variables = []
         url = self.create_variable_url
         while url:
@@ -68,6 +62,11 @@ class APIClient:
             except Exception as e:
                 logging.error(f"Ошибка при запросе списка переменных: {e}")
                 break
+
+        # Логирование всех переменных для диагностики
+        logging.info(f"Получено переменных: {len(all_variables)}")
+        for var in all_variables:
+            logging.info(f"Переменная: {var['name']} (ID: {var['id']})")
         return all_variables
 
     def create_variable(self, name, var_type, value="", comment=""):
@@ -86,18 +85,6 @@ class APIClient:
         except Exception as e:
             logging.error(f"Ошибка при создании переменной {name}: {e}")
 
-    def delete_variable(self, variable):
-        variable_id = variable['id']
-        diff = variable['diff']
-        delete_url = f"{self.create_variable_url}/{variable_id}"
-        try:
-            response = self.session.delete(delete_url, headers=self.headers)
-            if response.status_code == 204 or (response.status_code == 200 and diff in ['=', '*', '-']):
-                logging.info(f"Переменная с ID {variable_id} успешно обработана (diff: {diff})")
-            else:
-                logging.error(f"Ошибка удаления переменной с ID {variable_id}: {response.status_code} - {response.text}")
-        except Exception as e:
-            logging.error(f"Ошибка при удалении переменной с ID {variable_id}: {e}")
 
     def delete_all_variables(self):
         variables = self.get_all_variables()
@@ -121,5 +108,55 @@ class APIClient:
         except Exception as e:
             logging.error(f"Ошибка при обновлении переменной с ID {variable_id}: {e}")
 
+    def get_variable_by_name(self, variable_name):
+        """
+        Получает объект переменной по её имени, обрабатывая все страницы.
+        """
+        clean_name = variable_name.strip().upper()  # Приведение к верхнему регистру
+        logging.info(f"Ищем переменную с именем: {clean_name}")
+
+        url = self.create_variable_url  # Начинаем с первой страницы
+        while url:
+            try:
+                response = self.session.get(url, headers=self.headers)
+                if response.status_code == 200:
+                    data = response.json()
+                    variables = data.get('results', [])
+                    for variable in variables:
+                        if variable['name'].upper() == clean_name:
+                            logging.info(f"Переменная найдена: {variable}")
+                            return variable
+                    url = data.get('next')  # URL следующей страницы
+                else:
+                    logging.error(f"Ошибка при запросе переменных: {response.status_code} - {response.text}")
+                    break
+            except Exception as e:
+                logging.error(f"Ошибка при попытке получить переменную {clean_name}: {e}")
+                break
+
+        logging.warning(f"Переменная с именем {clean_name} не найдена.")
+        return None
+
+    def delete_variable(self, variable):
+        """
+        Удаляет переменную по ID.
+        """
+        variable_id = variable['id']
+        diff = variable['diff']
+        delete_url = f"{self.create_variable_url}/{variable_id}"
+
+        try:
+            response = self.session.delete(delete_url, headers=self.headers)
+            if response.status_code == 204:
+                logging.info(f"Переменная с ID {variable_id} удалена сразу (diff: {diff}).")
+            elif response.status_code == 200:
+                logging.info(f"Переменная с ID {variable_id} успешно помечена для удаления (diff: {diff}).")
+            else:
+                logging.error(
+                    f"Ошибка удаления переменной с ID {variable_id}: {response.status_code} - {response.text}")
+        except Exception as e:
+            logging.error(f"Ошибка при удалении переменной с ID {variable_id}: {e}")
+
     def close_session(self):
         self.session.close()
+

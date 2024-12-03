@@ -1,0 +1,6 @@
+{
+  "api_base_url": "https://192.168.1.83/api/v2",
+  "username": "administrator",
+  "password": "Administr@t0r",
+  "directory_path": "PT-NAD_Catalog/"
+}

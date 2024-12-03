@@ -1,4 +1,5 @@
-from scripts.api_client import APIClient  # Импортируем ваш класс APIClient
+from scripts.API_CLIENT import APIClient  # Импортируем ваш класс APIClient
+logging.basicConfig(level=logging.INFO)
 
 
 def replace_ip_in_variable(api_client, variable_id, old_ip, new_ip):
