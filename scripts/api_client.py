@@ -112,10 +112,10 @@ class APIClient:
         """
         Получает объект переменной по её имени, обрабатывая все страницы.
         """
-        clean_name = variable_name.strip().upper()  # Приведение к верхнему регистру
+        clean_name = variable_name.strip().upper()
         logging.info(f"Ищем переменную с именем: {clean_name}")
 
-        url = self.create_variable_url  # Начинаем с первой страницы
+        url = self.create_variable_url
         while url:
             try:
                 response = self.session.get(url, headers=self.headers)
@@ -126,7 +126,7 @@ class APIClient:
                         if variable['name'].upper() == clean_name:
                             logging.info(f"Переменная найдена: {variable}")
                             return variable
-                    url = data.get('next')  # URL следующей страницы
+                    url = data.get('next')
                 else:
                     logging.error(f"Ошибка при запросе переменных: {response.status_code} - {response.text}")
                     break

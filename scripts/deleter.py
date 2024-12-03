@@ -1,26 +1,23 @@
-from API_CLIENT import APIClient  # Импортируем ваш класс APIClient
+import json
 
-if __name__ == "__main__":
-    API_BASE_URL = "https://192.168.1.83/api/v2"
-    USERNAME = "administrator"
-    PASSWORD = "Administr@t0r"
+from API_CLIENT import APIClient
 
-    api_client = APIClient(API_BASE_URL, USERNAME, PASSWORD)
+with open('credits.json', 'r') as f:
+    credits = json.load(f)
+API_BASE_URL = credits['api_base_url']
+USERNAME = credits['username']
+PASSWORD = credits['password']
+DIRECTORY_PATH = credits['directory_path']
+f.close()
 
-    try:
-        api_client.delete_all_variables()
-        print("Все переменные успешно удалены.")
-    except Exception as e:
-        print(f"Ошибка при удалении переменных: {e}")
-    finally:
-        api_client.close_session()
+api_client = APIClient(API_BASE_URL, USERNAME, PASSWORD)
 
-""" 
-
-API_BASE_URL = "https://192.168.1.83/api/v2"
-USERNAME = "administrator"
-PASSWORD = "Administr@t0r"
-
-"""
+try:
+    api_client.delete_all_variables()
+    print("Все переменные успешно удалены.")
+except Exception as e:
+    print(f"Ошибка при удалении переменных: {e}")
+finally:
+    api_client.close_session()
 
 

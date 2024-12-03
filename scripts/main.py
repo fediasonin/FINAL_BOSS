@@ -3,7 +3,7 @@ import logging
 import time
 
 from scripts.API_CLIENT import APIClient
-from scripts.first_load import collect_hierarchy, upload_hierarchy
+from scripts.utilits import collect_hierarchy, upload_hierarchy
 from scripts.patching import monitor_directory
 
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +37,6 @@ def first_load():
 
 def pathcing():
     api_client = APIClient(API_BASE_URL, USERNAME, PASSWORD)
-    # Запуск наблюдения за директорией
     monitor_directory(api_client, DIRECTORY_PATH)
     api_client.close_session()
 
