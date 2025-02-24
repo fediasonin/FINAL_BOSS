@@ -1,21 +1,25 @@
-import json
 import logging
 import time
 from multiprocessing import Pool
+import os
 
+from dotenv import load_dotenv
 from api_client import APIClient
 from utilits import collect_hierarchy, upload_hierarchy
 from patching import monitor_directory
 
 logging.basicConfig(level=logging.INFO)
 
-with open('../credits.json', 'r') as f:
-    credits = json.load(f)
+load_dotenv()
 
-API_BASE_URL = credits['api_base_url']
-USERNAME = credits['username']
-PASSWORD = credits['password']
-DIRECTORY_PATH = credits['directory_path']
+API_BASE_URL = os.getenv('API_BASE_URL')
+USERNAME = os.getenv('USERNAME')
+PASSWORD = os.getenv('PASSWORD')
+DIRECTORY_PATH = os.getenv('DIRECTORY_PATH')
+
+print(f"API URL: {API_BASE_URL}")
+print(f"Username: {USERNAME}")
+print(f"Directory Path: {DIRECTORY_PATH}")
 
 
 def first_load():
