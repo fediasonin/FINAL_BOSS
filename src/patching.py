@@ -3,7 +3,7 @@ import time
 import logging
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from scripts.utilits import parse_agency_file, upload_variable, handle_full_reset
+from utilits import parse_agency_file, upload_variable, handle_full_reset
 
 logging.basicConfig(level=logging.INFO)
 
@@ -31,7 +31,9 @@ class DirectoryChangeHandler(FileSystemEventHandler):
             self.update_variable_or_reset(event.src_path)
 
     def on_created(self, event):
-        """Обрабатывает создание файлов."""
+        """
+        Обрабатывает создание файлов.
+        """
         if event.is_directory:
             return
 
@@ -40,7 +42,9 @@ class DirectoryChangeHandler(FileSystemEventHandler):
             self.update_variable_or_reset(event.src_path)
 
     def on_deleted(self, event):
-        """Обрабатывает удаление файла или директории."""
+        """
+        Обрабатывает удаление файла или директории.
+        """
         if not event.is_directory and event.src_path.endswith(".md"):
             # Очистка имени: удаляем '$' и '.md'
             agency_name = os.path.basename(event.src_path).replace(".md", "").replace("$", "")
@@ -55,7 +59,9 @@ class DirectoryChangeHandler(FileSystemEventHandler):
                 logging.error(f"Ошибка удаления переменной {agency_name}: {e}")
 
     def update_variable_or_reset(self, filepath):
-        """Обновляет переменную или выполняет полный сброс переменных."""
+        """
+        Обновляет переменную или выполняет полный сброс переменных.
+        """
         filename = os.path.basename(filepath)
         if filename == "!!!Корневой слой.md":  # Проверка изменения главного узла
             logging.info("Изменён узел верхнего уровня. Выполняется полный сброс переменных.")
@@ -69,7 +75,9 @@ class DirectoryChangeHandler(FileSystemEventHandler):
 
 # ===== Основная программа ===== #
 def monitor_directory(api_client, directory_path):
-    """Запуск наблюдателя за изменениями в директории."""
+    """
+    Запуск наблюдателя за изменениями в директории.
+    """
     event_handler = DirectoryChangeHandler(api_client, directory_path)
     observer = Observer()
     observer.schedule(event_handler, path=directory_path, recursive=True)
