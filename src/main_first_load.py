@@ -46,6 +46,6 @@ def pathcing():
     api_client.close_session()
 
 
-if __name__ == "__main__":
-    first_load()
-    pathcing()
+
+first_load()
+pathcing()
